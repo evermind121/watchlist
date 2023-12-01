@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Edit Movie Information</h2>
+
+  <form method="post">
+    <div class="form-group">
+      <label for="new_movie_id">New Movie ID:</label>
+      <input type="text" name="new_movie_id" value="{{ movie.movie_id }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="new_movie_name">New Movie Name:</label>
+      <input type="text" name="new_movie_name" value="{{ movie.movie_name }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="new_country">New Country:</label>
+      <input type="text" name="new_country" value="{{ movie.country }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="new_type">New Type:</label>
+      <input type="text" name="new_type" value="{{ movie.type }}" required>
+    </div>
+
+    <div class="form-group">
+      <label for="new_year">New Year:</label>
+      <input type="text" name="new_year" value="{{ movie.year }}" required>
+    </div>
+    <!-- 添加其他编辑字段... -->
+
+    <div class="form-group">
+      <input class="btn" type="submit" value="Save Changes">
+    </div>
+  </form>
+
+  <p>
+    <a href="{{ url_for('movie_info') }}">Cancel</a>
+  </p>
+{% endblock %}

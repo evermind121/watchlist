@@ -30,6 +30,8 @@ footer {
 .movie-list li {
     padding: 12px 24px;
     border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between; /* 新增：让内容靠两边对齐 */
 }
 
 .movie-list li:last-child {
@@ -38,6 +40,53 @@ footer {
 
 .movie-list li:hover {
     background-color: #f8f9fa;
+}
+
+/* 新增样式：调整每个项的样式 */
+.movie-list li span {
+    flex: 1;
+    margin-right: 10px;
+}
+
+/* 新增样式：调整hover效果 */
+.movie-list li:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+/* 演员列表 */
+.actor-list {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+.actor-list li {
+    padding: 12px 24px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between; /* 新增：让内容靠两边对齐 */
+}
+
+.actor-list li:last-child {
+    border-bottom:none;
+}
+
+.actor-list li:hover {
+    background-color: #f8f9fa;
+}
+
+/* 新增样式：调整每个项的样式 */
+.actor-list li span {
+    flex: 1;
+    margin-right: 10px;
+}
+
+/* 新增样式：调整hover效果 */
+.actor-list li:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
 }
 
 /* 龙猫图片 */
@@ -131,4 +180,25 @@ input[name=year] {
 
 .inline-form {
     display: inline;
+}
+
+.form-group {
+  margin-bottom: 10px; /* 控制每个编辑字段之间的间距 */
+}
+
+.welcome {
+  text-align: center;
+  margin-top: 30px; /* 调整上方边距以使标题垂直居中 */
+}
+
+.welcome h1 {
+  font-size: 36px; /* 设置标题字体大小 */
+  color: #333; /* 设置标题颜色 */
+  /* 可以根据需要添加其他样式，比如加粗、斜体等 */
+}
+
+.intro {
+    font-size: 16px; /* 设置字体大小为16像素，根据需要调整 */
+    color: #333; /* 设置文字颜色，可以根据需要调整 */
+    margin-top: 10px; /* 设置上边距，根据需要调整 */
 }

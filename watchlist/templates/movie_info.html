@@ -1,0 +1,33 @@
+<!-- 在 templates/movie_info.html 中添加以下内容 -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Movie Information</h2>
+
+  <!-- 添加按钮链接到创建新MovieInfo页面 -->
+  <p>
+    <a href="{{ url_for('create_movie') }}" class="btn btn-primary">Add New MovieInfo</a>
+  </p>
+
+  {% if movies %}
+    <ul class="movie-list">
+      {% for movie in movies %}
+        <li>
+          <strong>{{ movie.movie_id }} - {{ movie.movie_name }} - {{ movie.country }} - {{ movie.type }} - {{ movie.year }}
+          <span class="float-right">
+            <a class="btn" href="{{ url_for('edit_movie', movie_id=movie.movie_id) }}">Edit</a>
+            <form class="inline-form" method="post" action="{{ url_for('delete_movie', movie_id=movie.movie_id) }}">
+               <input class="btn" type="submit" name="delete" value="Delete" onclick="return confirm('Are you sure?')">
+            </form>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No movies available.</p>
+  {% endif %}
+
+  <p>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+  </p>
+{% endblock %}

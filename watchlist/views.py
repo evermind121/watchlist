@@ -2,32 +2,54 @@ from flask import render_template, request, url_for, redirect, flash
 from flask_login import login_user, login_required, logout_user, current_user
 
 from watchlist import app, db
-from watchlist.models import User, Movie
+from watchlist.models import User, MovieInfo, ActorInfo, MovieBox, MovieActorRelation
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/',methods=['GET','POST'])
 def index():
-    if request.method == 'POST':
-        if not current_user.is_authenticated:
-            return redirect(url_for('index'))
 
-        title = request.form['title']
-        year = request.form['year']
+    movie_info = None
+    # 检查是否有查询参数
+    movie_name = request.args.get('movie_name')
+    if movie_name:
+    # 查询电影信息
+        movie_info = MovieInfo.query.filter_by(movie_name=movie_name).all()
+        if movie_info:
+            movie_id=movie_info[0].movie_id
+            box_info=MovieBox.query.filter_by(movie_id=movie_id).first()
+            # 查询与电影相关联的演员信息和关系类型
+            actor_relations = MovieActorRelation.query.filter_by(movie_id=movie_id).all()
+            actors_info=[]
+            for relation in actor_relations:
+                actor_id=relation.actor_id
+                relation_type=relation.relation_type
+                # 查询演员的姓名
+                actor_info = ActorInfo.query.filter_by(actor_id=actor_id).first()
 
-        if not title or not year or len(year) != 4 or len(title) > 60:
-            flash('Invalid input.')
-            return redirect(url_for('index'))
+                if actor_info:
+                    actor_name = actor_info.actor_name
+                    actors_info.append({"actor_name": actor_name, "relation_type": relation_type})
 
-        movie = Movie(title=title, year=year)
-        db.session.add(movie)
-        db.session.commit()
-        flash('Item created.')
-        return redirect(url_for('index'))
+            return render_template('index.html', movie_info=movie_info, actors_info=actors_info, box_info=box_info)
+    #return render_template('index.html', movie_info=movie_info)
+    actor_name = request.args.get('actor_name')
+    if actor_name:
+        actor_info=ActorInfo.query.filter_by(actor_name=actor_name).first()
+        if actor_info:
+            movies_info=[]
+            actor_id=actor_info.actor_id
+            movies_related = MovieActorRelation.query.filter_by(actor_id=actor_id).all()
+            for movie_related in movies_related:
+                movie_id=movie_related.movie_id
+                relation_type=movie_related.relation_type
+                movie=MovieInfo.query.filter_by(movie_id=movie_id).first()
+                if movie:
+                    movie_name=movie.movie_name
+                    movies_info.append({"movie_name": movie_name, "relation_type": relation_type})
+            return render_template('index.html', actor_info=actor_info, movies_info=movies_info)
 
-    movies = Movie.query.all()
-    return render_template('index.html', movies=movies)
-
-
+    return render_template('index.html')
+"""
 @app.route('/movie/edit/<int:movie_id>', methods=['GET', 'POST'])
 @login_required
 def edit(movie_id):
@@ -48,8 +70,8 @@ def edit(movie_id):
         return redirect(url_for('index'))
 
     return render_template('edit.html', movie=movie)
-
-
+"""
+"""
 @app.route('/movie/delete/<int:movie_id>', methods=['POST'])
 @login_required
 def delete(movie_id):
@@ -58,7 +80,7 @@ def delete(movie_id):
     db.session.commit()
     flash('Item deleted.')
     return redirect(url_for('index'))
-
+"""
 
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
@@ -108,3 +130,71 @@ def logout():
     logout_user()
     flash('Goodbye.')
     return redirect(url_for('index'))
+
+@app.route('/movie_info')
+#@login_required
+def movie_info():
+    movies = MovieInfo.query.all()
+    return render_template('movie_info.html', movies=movies)
+
+@app.route('/actor_info')
+def actor_info():
+    actors=ActorInfo.query.all()
+    return render_template('actor_info.html',actors=actors)
+
+# 编辑 MovieInfo 的视图函数
+@app.route('/edit_movie/<int:movie_id>', methods=['GET', 'POST'])
+#@login_required
+def edit_movie(movie_id):
+    movie = MovieInfo.query.get_or_404(movie_id)
+
+    if request.method == 'POST':
+        # 处理编辑表单的提交
+        # 在这里更新数据库中的 MovieInfo 数据
+        movie.movie_id = request.form['new_movie_id']
+        movie.movie_name = request.form['new_movie_name']
+        movie.country = request.form['new_country']
+        movie.type = request.form['new_type']
+        movie.year = request.form['new_year']
+        # 更新其他字段...
+
+        db.session.commit()
+        flash('Movie information updated successfully', 'success')
+        return redirect(url_for('movie_info'))
+
+    return render_template('edit_movie.html', movie=movie)
+# 删除 MovieInfo 的视图函数
+@app.route('/delete_movie/<int:movie_id>', methods=['POST'])
+#@login_required
+def delete_movie(movie_id):
+    movie = MovieInfo.query.get_or_404(movie_id)
+    db.session.delete(movie)
+    db.session.commit()
+    flash('Movie deleted successfully', 'success')
+    return redirect(url_for('movie_info'))
+
+@app.route('/create_movie', methods=['GET', 'POST'])
+def create_movie():
+    if request.method == 'POST':
+        try:
+            # 获取表单数据
+            movie_id = request.form.get('movie_id')
+            movie_name = request.form.get('movie_name')
+            country = request.form.get('country')
+            movie_type = request.form.get('type')
+            movie_year = request.form.get('year')
+
+            # 创建新的MovieInfo对象并添加到数据库
+            new_movie = MovieInfo(movie_id=movie_id, movie_name=movie_name, country=country, type=movie_type, year=movie_year)
+            db.session.add(new_movie)
+            db.session.commit()
+
+            # 重定向到MovieInfo页面，显示新添加的电影
+            return redirect(url_for('movie_info'))
+        except IntegrityError:
+            # 主键冲突，回滚事务并显示错误消息给用户
+            db.session.rollback()
+            error_message = "Movie ID already exists. Please choose a different ID."
+            return render_template('create_movie.html', error_message=error_message)
+    # 如果是 GET 请求，渲染创建新MovieInfo的页面
+    return render_template('create_movie.html')

@@ -16,7 +16,7 @@
     {% endfor %}
     <h2>
         <img alt="Avatar" class="avatar" src="{{ url_for('static', filename='images/2.png') }}">
-        {{ user.name }}'s Watchlist
+        {{ user.name }}'s Movie Management System
     </h2>
     <nav>
         <ul>
@@ -25,6 +25,8 @@
             <li><a href="{{ url_for('settings') }}">Settings</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
             {% else %}
+            <li><a href="{{ url_for('movie_info') }}">MovieInfo</a></li>
+            <li><a href="{{ url_for('actor_info') }}">ActorInfo</a></li>
             <li><a href="{{ url_for('login') }}">Login</a></li>
             {% endif %}
         </ul>
