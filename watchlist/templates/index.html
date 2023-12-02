@@ -55,7 +55,9 @@
         </li>
       </ul>
   {% endif %}
-
+  <p>
+    <a href="{{ url_for('create_movie_info') }}" class="btn">Add New Movie</a>
+  </p>
 
 <img alt="Walking Totoro" class="totoro" src="{{ url_for('static', filename='images/totoro.gif') }}" title="to~to~ro~">
 {% endblock %}

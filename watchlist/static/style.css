@@ -30,8 +30,7 @@ footer {
 .movie-list li {
     padding: 12px 24px;
     border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between; /* 新增：让内容靠两边对齐 */
+
 }
 
 .movie-list li:last-child {
@@ -65,8 +64,7 @@ footer {
 .actor-list li {
     padding: 12px 24px;
     border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: space-between; /* 新增：让内容靠两边对齐 */
+
 }
 
 .actor-list li:last-child {
@@ -150,6 +148,8 @@ input[name=year] {
 }
 
 .btn {
+    font-family: Arial, sans-serif; /* 示例字体 */
+    font-weight: normal; /* 示例字重 */
     font-size: 12px;
     padding: 3px 5px;
     text-decoration: none;
@@ -201,4 +201,14 @@ input[name=year] {
     font-size: 16px; /* 设置字体大小为16像素，根据需要调整 */
     color: #333; /* 设置文字颜色，可以根据需要调整 */
     margin-top: 10px; /* 设置上边距，根据需要调整 */
+}
+
+.modal {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    position: absolute;
+    width: 300px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    display: none;
 }

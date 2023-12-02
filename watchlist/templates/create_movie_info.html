@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Add New Movie</h2>
+
+<form method="post">
+    <!-- MovieInfo Fields -->
+    <div class="form-group">
+        <label for="movie_name">Movie Name:</label>
+        <input type="text" name="movie_name" required>
+    </div>
+
+    <div class="form-group">
+        <label for="release_date">Release Date:</label>
+        <input type="date" name="release_date" required>
+    </div>
+
+
+    <div class="form-group">
+      <label for="country">Country:</label>
+      <input type="text" name="country" required>
+    </div>
+
+    <div class="form-group">
+      <label for="type">Type:</label>
+      <input type="text" name="type" required>
+    </div>
+
+    <div class="form-group">
+      <label for="year">Year:</label>
+      <input type="text" name="year" required>
+    </div>
+
+    <!-- MovieBox Field -->
+    <div class="form-group">
+        <label for="box">Box Office:</label>
+        <input type="number" name="box" required>
+    </div>
+
+    <!-- ActorInfo Fields for multiple actors -->
+    <div class="form-group">
+        <label>Actors:</label>
+        <div id="actor-fields">
+            <div>
+                <input type="text" name="actor_name_1" placeholder="Actor Name" required>
+                <input type="text" name="relation_type_1" placeholder="Relation Type" required>
+                <input type="text" name="gender_1" placeholder="Gender" required>
+                <input type="text" name=country_1 placeholder="Country" required>
+            </div>
+            <div>
+                <input type="text" name="actor_name_2" placeholder="Actor Name">
+                <input type="text" name="relation_type_2" placeholder="Relation Type">
+                <input type="text" name="gender_2" placeholder="Gender">
+                <input type="text" name=country_2 placeholder="Country">
+            </div>
+            <!-- Add more actor input pairs as needed -->
+        </div>
+    </div>
+
+    <input type="submit" value="Add Movie">
+  </form>
+  <p>
+    <a href="{{ url_for('index') }}">Cancel</a>
+  </p>
+
+{% endblock %}

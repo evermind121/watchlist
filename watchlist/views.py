@@ -135,7 +135,10 @@ def logout():
 #@login_required
 def movie_info():
     movies = MovieInfo.query.all()
-    return render_template('movie_info.html', movies=movies)
+    movies_box = MovieBox.query.all()
+    actors=ActorInfo.query.all()
+    relations= MovieActorRelation.query.all()
+    return render_template('movie_info.html', actors=actors,relations=relations,movies=movies,movies_box=movies_box,)
 
 @app.route('/actor_info')
 def actor_info():
@@ -173,7 +176,7 @@ def delete_movie(movie_id):
     flash('Movie deleted successfully', 'success')
     return redirect(url_for('movie_info'))
 
-@app.route('/create_movie', methods=['GET', 'POST'])
+'''@app.route('/create_movie', methods=['GET', 'POST'])
 def create_movie():
     if request.method == 'POST':
         try:
@@ -197,4 +200,59 @@ def create_movie():
             error_message = "Movie ID already exists. Please choose a different ID."
             return render_template('create_movie.html', error_message=error_message)
     # 如果是 GET 请求，渲染创建新MovieInfo的页面
-    return render_template('create_movie.html')
+    return render_template('create_movie.html')'''
+
+
+from datetime import datetime
+
+@app.route('/create_movie_info', methods=['GET', 'POST'])
+def create_movie_info():
+    if request.method == 'POST':
+        # 从表单获取数据
+        movie_name = request.form.get('movie_name')
+        release_date_str = request.form.get('release_date')
+        release_date = datetime.strptime(release_date_str, '%Y-%m-%d').date()
+        country = request.form.get('country')
+        type = request.form.get('type')
+        year = request.form.get('year')
+        box_office = request.form.get('box')
+
+        # 检查电影是否已存在
+        existing_movie = MovieInfo.query.filter_by(movie_name=movie_name).first()
+        if existing_movie:
+            flash('Movie already exists.')
+            return redirect(url_for('create_movie_info'))
+
+        # 添加电影信息到数据库
+        new_movie = MovieInfo(movie_name=movie_name, release_date=release_date, country=country, type=type, year=year)
+        db.session.add(new_movie)
+        db.session.commit()
+
+        # 添加票房信息
+        new_movie_box = MovieBox(movie_id=new_movie.movie_id, box=box_office)
+        db.session.add(new_movie_box)
+        db.session.commit()
+
+        # 添加演员信息
+        for i in range(1, 3):  # 假设有两个演员字段
+            actor_name = request.form.get(f'actor_name_{i}')
+            relation_type = request.form.get(f'relation_type_{i}')
+            gender=request.form.get(f'gender_{i}')
+            country=request.form.get(f'country_{i}')
+            if actor_name:
+                # 检查演员是否存在
+                actor = ActorInfo.query.filter_by(actor_name=actor_name).first()
+                if not actor:
+                    actor = ActorInfo(actor_name=actor_name, gender=gender, country=country)
+                    db.session.add(actor)
+                    db.session.commit()
+
+                # 添加电影和演员的关系
+                new_relation = MovieActorRelation(movie_id=new_movie.movie_id, actor_id=actor.actor_id, relation_type=relation_type)
+                db.session.add(new_relation)
+                db.session.commit()
+
+        flash('Movie added successfully.')
+        return redirect(url_for('index'))
+
+    return render_template('create_movie_info.html')
