@@ -13,6 +13,14 @@ footer {
     text-align: center;
     padding: 10px;
 }
+.centered-title {
+  text-align: center;      /* 设置文本居中 */
+  background-color: #f0f0f0; /* 设置背景颜色为浅灰色 */
+  padding: 10px;           /* 在标题周围添加10像素的填充 */
+      /* 设置顶部外边距为20像素，以提供一些空间 */
+  border-radius: 5px;      /* 设置边框圆角为5像素 */
+}
+}
 
 /* 头像 */
 .avatar {
@@ -93,9 +101,14 @@ footer {
     margin: 0 auto;
     height: 100px;
 }
+h2 {
+    margin-top: 0;
+    /* 保留其他样式不变 */
+}
 
 nav ul {
     list-style-type: none;
+    margin-bottom: 0;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -182,8 +195,23 @@ input[name=year] {
     display: inline;
 }
 
-.form-group {
-  margin-bottom: 10px; /* 控制每个编辑字段之间的间距 */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"] {
+
+    padding: 8px;
+    margin: 3px 0 5px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group input[type="date"]:focus {
+    background-color: #ddd;
+    outline: none;
 }
 
 .welcome {

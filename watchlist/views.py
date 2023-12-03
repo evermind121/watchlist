@@ -150,22 +150,38 @@ def actor_info():
 #@login_required
 def edit_movie(movie_id):
     movie = MovieInfo.query.get_or_404(movie_id)
-
+    movie_box = MovieBox.query.filter_by(movie_id=movie_id).first()
+    #actors_info=ActorInfo.query.all()
+    movie_actor_relations = MovieActorRelation.query.filter_by(movie_id=movie_id).all()
+    actors=[]
+    for relation in movie_actor_relations:
+        actor_id=relation.actor_id
+        actor=ActorInfo.query.get(actor_id)
+        if actor and not any(a.actor_id == actor_id for a in actors):
+            actors.append(actor)
     if request.method == 'POST':
         # 处理编辑表单的提交
-        # 在这里更新数据库中的 MovieInfo 数据
-        movie.movie_id = request.form['new_movie_id']
         movie.movie_name = request.form['new_movie_name']
+        release_date_str = request.form.get('new_release_date')
+        movie.release_date = datetime.strptime(release_date_str, '%Y-%m-%d').date()
         movie.country = request.form['new_country']
         movie.type = request.form['new_type']
         movie.year = request.form['new_year']
-        # 更新其他字段...
-
+        movie_box.box = request.form['new_box']
+        for relation in movie_actor_relations:
+            #actor_id=relation.actor_id
+            actor_id=relation.actor_id
+            actor=ActorInfo.query.get(actor_id)
+            if actor:
+                actor.actor_name = request.form.get(f'new_actor_name_{actor_id}')
+                actor.gender = request.form.get(f'new_gender_{actor_id}')
+                actor.country = request.form.get(f'new_country_{actor_id}')
+                relation.relation_type=request.form.get(f'new_relation_type_{actor_id}')
         db.session.commit()
         flash('Movie information updated successfully', 'success')
         return redirect(url_for('movie_info'))
 
-    return render_template('edit_movie.html', movie=movie)
+    return render_template('edit_movie.html', actors=actors, movie=movie, movie_box=movie_box, movie_actor_relations=movie_actor_relations)
 # 删除 MovieInfo 的视图函数
 @app.route('/delete_movie/<int:movie_id>', methods=['POST'])
 #@login_required

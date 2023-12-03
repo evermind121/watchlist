@@ -40,3 +40,14 @@ def inject_user():
 
 
 from watchlist import views, errors, commands
+
+from datetime import datetime
+# 定义一个自定义的过滤器
+@app.template_filter('format_date')
+def format_date(value, format='%Y-%m-%d'):
+    if value is None:
+        return ''
+    return value.strftime(format)
+
+# 确保注册了过滤器
+app.jinja_env.filters['format_date'] = format_date

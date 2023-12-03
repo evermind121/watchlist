@@ -14,10 +14,10 @@
     {% for message in get_flashed_messages() %}
         <div class="alert">{{ message }}</div>
     {% endfor %}
-    <h2>
-        <img alt="Avatar" class="avatar" src="{{ url_for('static', filename='images/2.png') }}">
+    <h1>
+
         {{ user.name }}'s Movie Management System
-    </h2>
+    </h1>
     <nav>
         <ul>
             <li><a href="{{ url_for('index') }}">Home</a></li>
