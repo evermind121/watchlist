@@ -8,97 +8,7 @@ from watchlist.models import User, MovieInfo, ActorInfo, MovieBox, MovieActorRel
 @app.route('/',methods=['GET','POST'])
 def index():
 
-    movie_info = None
-    # 检查是否有查询参数
-    movie_name = request.args.get('movie_name')
-    if movie_name:
-    # 查询电影信息
-        movie_info = MovieInfo.query.filter_by(movie_name=movie_name).all()
-        if movie_info:
-            movie_id=movie_info[0].movie_id
-            box_info=MovieBox.query.filter_by(movie_id=movie_id).first()
-            # 查询与电影相关联的演员信息和关系类型
-            actor_relations = MovieActorRelation.query.filter_by(movie_id=movie_id).all()
-            actors_info=[]
-            for relation in actor_relations:
-                actor_id=relation.actor_id
-                relation_type=relation.relation_type
-                # 查询演员的姓名
-                actor_info = ActorInfo.query.filter_by(actor_id=actor_id).first()
-
-                if actor_info:
-                    actor_name = actor_info.actor_name
-                    actors_info.append({"actor_name": actor_name, "relation_type": relation_type})
-
-            return render_template('index.html', movie_info=movie_info, actors_info=actors_info, box_info=box_info)
-    #return render_template('index.html', movie_info=movie_info)
-    actor_name = request.args.get('actor_name')
-    if actor_name:
-        actor_info=ActorInfo.query.filter_by(actor_name=actor_name).first()
-        if actor_info:
-            movies_info=[]
-            actor_id=actor_info.actor_id
-            movies_related = MovieActorRelation.query.filter_by(actor_id=actor_id).all()
-            for movie_related in movies_related:
-                movie_id=movie_related.movie_id
-                relation_type=movie_related.relation_type
-                movie=MovieInfo.query.filter_by(movie_id=movie_id).first()
-                if movie:
-                    movie_name=movie.movie_name
-                    movies_info.append({"movie_name": movie_name, "relation_type": relation_type})
-            return render_template('index.html', actor_info=actor_info, movies_info=movies_info)
-
     return render_template('index.html')
-"""
-@app.route('/movie/edit/<int:movie_id>', methods=['GET', 'POST'])
-@login_required
-def edit(movie_id):
-    movie = Movie.query.get_or_404(movie_id)
-
-    if request.method == 'POST':
-        title = request.form['title']
-        year = request.form['year']
-
-        if not title or not year or len(year) != 4 or len(title) > 60:
-            flash('Invalid input.')
-            return redirect(url_for('edit', movie_id=movie_id))
-
-        movie.title = title
-        movie.year = year
-        db.session.commit()
-        flash('Item updated.')
-        return redirect(url_for('index'))
-
-    return render_template('edit.html', movie=movie)
-"""
-"""
-@app.route('/movie/delete/<int:movie_id>', methods=['POST'])
-@login_required
-def delete(movie_id):
-    movie = Movie.query.get_or_404(movie_id)
-    db.session.delete(movie)
-    db.session.commit()
-    flash('Item deleted.')
-    return redirect(url_for('index'))
-"""
-
-@app.route('/settings', methods=['GET', 'POST'])
-@login_required
-def settings():
-    if request.method == 'POST':
-        name = request.form['name']
-
-        if not name or len(name) > 20:
-            flash('Invalid input.')
-            return redirect(url_for('settings'))
-
-        user = User.query.first()
-        user.name = name
-        db.session.commit()
-        flash('Settings updated.')
-        return redirect(url_for('index'))
-
-    return render_template('settings.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -138,12 +48,16 @@ def movie_info():
     movies_box = MovieBox.query.all()
     actors=ActorInfo.query.all()
     relations= MovieActorRelation.query.all()
-    return render_template('movie_info.html', actors=actors,relations=relations,movies=movies,movies_box=movies_box,)
+    search = request.args.get('search')
+    search_found = False  # 添加标志
+    if search:
+        movies_search = MovieInfo.query.filter(MovieInfo.movie_name.like(f'%{search}%')).all()
+        if movies_search:
+            search_found = True
+        return render_template('movie_info.html', actors=actors,relations=relations,movies=movies,movies_box=movies_box,movies_search=movies_search,search_found=search_found)
+    return render_template('movie_info.html', actors=actors,relations=relations,movies=movies,movies_box=movies_box)
 
-@app.route('/actor_info')
-def actor_info():
-    actors=ActorInfo.query.all()
-    return render_template('actor_info.html',actors=actors)
+
 
 # 编辑 MovieInfo 的视图函数
 @app.route('/edit_movie/<int:movie_id>', methods=['GET', 'POST'])
@@ -177,6 +91,29 @@ def edit_movie(movie_id):
                 actor.gender = request.form.get(f'new_gender_{actor_id}')
                 actor.country = request.form.get(f'new_country_{actor_id}')
                 relation.relation_type=request.form.get(f'new_relation_type_{actor_id}')
+        # 处理新增的演员信息
+        for i in range(1, 11):  # 假设最多可以添加10个新演员
+            if f'new_actor_name_{i}' in request.form:
+                new_actor_name = request.form.get(f'new_actor_name_{i}')
+                new_actor_gender = request.form.get(f'new_gender_{i}')
+                new_actor_country = request.form.get(f'new_country_{i}')
+                new_relation_type = request.form.get(f'new_relation_type_{i}')
+
+                # 检查 ActorInfo 表中是否已存在该演员
+                actor = ActorInfo.query.filter_by(actor_name=new_actor_name).first()
+                if not actor:
+                    # 如果不存在，创建新的 ActorInfo 记录
+                    actor = ActorInfo(actor_name=new_actor_name, gender=new_actor_gender, country=new_actor_country)
+                    db.session.add(actor)
+                    db.session.flush()  # 生成 actor 的 ID
+
+                # 创建新的 MovieActorRelation 记录
+                new_relation = MovieActorRelation(movie_id=movie_id, actor_id=actor.actor_id, relation_type=new_relation_type)
+                db.session.add(new_relation)
+        for relation in movie_actor_relations:
+            if request.form.get(f'delete_actor_{relation.actor_id}'):
+                db.session.delete(relation)
+
         db.session.commit()
         flash('Movie information updated successfully', 'success')
         return redirect(url_for('movie_info'))
@@ -187,37 +124,70 @@ def edit_movie(movie_id):
 #@login_required
 def delete_movie(movie_id):
     movie = MovieInfo.query.get_or_404(movie_id)
+    # 删除与电影相关的票房信息
+    MovieBox.query.filter_by(movie_id=movie_id).delete()
+
+    # 删除与电影相关的所有演员关系
+    MovieActorRelation.query.filter_by(movie_id=movie_id).delete()
     db.session.delete(movie)
     db.session.commit()
     flash('Movie deleted successfully', 'success')
     return redirect(url_for('movie_info'))
 
-'''@app.route('/create_movie', methods=['GET', 'POST'])
-def create_movie():
-    if request.method == 'POST':
-        try:
-            # 获取表单数据
-            movie_id = request.form.get('movie_id')
-            movie_name = request.form.get('movie_name')
-            country = request.form.get('country')
-            movie_type = request.form.get('type')
-            movie_year = request.form.get('year')
+@app.route('/movie/<int:movie_id>')
+def movie_detail(movie_id):
+    movie = MovieInfo.query.get_or_404(movie_id)
+    movie_actor_relations = MovieActorRelation.query.filter_by(movie_id=movie_id).all()
+    movie_box = MovieBox.query.filter_by(movie_id=movie_id).first()
+    actors_info=[]
+    for relation in movie_actor_relations:
+        actor_id=relation.actor_id
+        relation_type=relation.relation_type
+        # 查询演员的姓名
+        actor_info = ActorInfo.query.filter_by(actor_id=actor_id).first()
 
-            # 创建新的MovieInfo对象并添加到数据库
-            new_movie = MovieInfo(movie_id=movie_id, movie_name=movie_name, country=country, type=movie_type, year=movie_year)
-            db.session.add(new_movie)
-            db.session.commit()
+        if actor_info:
+            actor_name = actor_info.actor_name
+            actors_info.append({"actor_name": actor_name, "relation_type": relation_type})
+    return render_template('movie_detail.html', movie=movie, movie_box=movie_box, actors_info = actors_info)
 
-            # 重定向到MovieInfo页面，显示新添加的电影
-            return redirect(url_for('movie_info'))
-        except IntegrityError:
-            # 主键冲突，回滚事务并显示错误消息给用户
-            db.session.rollback()
-            error_message = "Movie ID already exists. Please choose a different ID."
-            return render_template('create_movie.html', error_message=error_message)
-    # 如果是 GET 请求，渲染创建新MovieInfo的页面
-    return render_template('create_movie.html')'''
+@app.route('/actor_info')
+def actor_info():
+    actors=ActorInfo.query.all()
+    search = request.args.get('search')
+    search_found = False  # 添加标志
+    if search:
+        actors_search = ActorInfo.query.filter(ActorInfo.actor_name.like(f'%{search}%')).all()
+        if actors_search:
+            search_found = True
+        return render_template('actor_info.html', actors=actors,actors_search=actors_search,search_found=search_found)
+    return render_template('actor_info.html',actors=actors)
 
+@app.route('/actor/<int:actor_id>')
+def actor_detail(actor_id):
+    actor = ActorInfo.query.get_or_404(actor_id)
+    movie_actor_relations = MovieActorRelation.query.filter_by(actor_id=actor_id).all()
+    movies_info=[]
+    for relation in movie_actor_relations:
+        movie_id=relation.movie_id
+        relation_type=relation.relation_type
+        # 查询演员的姓名
+        movie_info = MovieInfo.query.filter_by(movie_id=movie_id).first()
+        if movie_info:
+            movie_name = movie_info.movie_name
+            movies_info.append({"movie_name": movie_name, "relation_type": relation_type})
+    return render_template('actor_detail.html', actor=actor, movies_info = movies_info)
+
+@app.route('/delete_actor/<int:actor_id>', methods=['POST'])
+#@login_required
+def delete_actor(actor_id):
+    actor = ActorInfo.query.get_or_404(actor_id)
+    # 删除与电影相关的所有演员关系
+    MovieActorRelation.query.filter_by(actor_id=actor_id).delete()
+    db.session.delete(actor)
+    db.session.commit()
+    flash('Actor deleted successfully', 'success')
+    return redirect(url_for('actor_info'))
 
 from datetime import datetime
 
@@ -250,7 +220,7 @@ def create_movie_info():
         db.session.commit()
 
         # 添加演员信息
-        for i in range(1, 3):  # 假设有两个演员字段
+        for i in range(1, 6):  # 假设有两个演员字段
             actor_name = request.form.get(f'actor_name_{i}')
             relation_type = request.form.get(f'relation_type_{i}')
             gender=request.form.get(f'gender_{i}')
@@ -272,3 +242,29 @@ def create_movie_info():
         return redirect(url_for('index'))
 
     return render_template('create_movie_info.html')
+
+
+
+
+@app.route('/box_office')
+def box_office():
+    top_boxes = MovieBox.query.order_by(MovieBox.box.desc()).limit(10).all()
+    top_movies = []
+    for box in top_boxes:
+        movie = MovieInfo.query.filter_by(movie_id=box.movie_id).first()
+        if movie:
+            top_movies.append({'movie_name': movie.movie_name, 'box': box.box})
+    # 按电影类别统计票房总和
+    type_box_office = db.session.query(
+        MovieInfo.type, db.func.sum(MovieBox.box).label('total_box')
+    ).join(MovieBox, MovieInfo.movie_id == MovieBox.movie_id)\
+     .group_by(MovieInfo.type)\
+     .all()
+
+    # 按电影年份统计票房总和
+    year_box_office = db.session.query(
+        MovieInfo.year, db.func.sum(MovieBox.box).label('total_box')
+    ).join(MovieBox, MovieInfo.movie_id == MovieBox.movie_id)\
+     .group_by(MovieInfo.year)\
+     .all()
+    return render_template('box_office.html', top_movies=top_movies,type_box_office=type_box_office,year_box_office=year_box_office)

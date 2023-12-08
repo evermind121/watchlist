@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <ul><h1>票房Top 10：</h1></ul>
+    <canvas id="boxOfficeChart" style="width: 80%; height: 600px; margin: auto;"></canvas>
+    <br>
+    <br>
+    <ul><h1>按类型统计：</h1></ul>
+    <canvas id="boxOfficeChartByType" style="width: 75%; height: 400px; margin: auto;"></canvas>
+    <br>
+    <br>
+    <ul><h1>按年份统计：</h1></ul>
+    <canvas id="boxOfficeChartByYear" style="width: 75%; height: 400px; margin: auto;"></canvas>
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    window.onload = function() {
+        // 第一个条形图: 票房前十的电影
+        var ctx = document.getElementById('boxOfficeChart').getContext('2d');
+        var movieNames = {{ top_movies|map(attribute='movie_name')|list|tojson }};
+        var boxOfficeData = {{ top_movies|map(attribute='box')|list|tojson }};
+        var boxOfficeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: movieNames,
+                datasets: [{
+                    label: '票房 (亿)',
+                    data: boxOfficeData,
+                    backgroundColor: '#343a40',
+                    borderColor: '#343a40',
+                    borderWidth: 1,
+                    barPercentage: 1,
+                    categoryPercentage: 0.6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                scales: {
+                    x: { beginAtZero: true },
+                    y: {
+                        ticks: {
+                            font: {
+                                size: 20,
+                                color: 'black'
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 第二个条形图: 按类别统计的票房信息
+        var ctxType = document.getElementById('boxOfficeChartByType').getContext('2d');
+        var movieTypes = {{ type_box_office|map(attribute='type')|list|tojson }};
+        var typeBoxOfficeData = {{ type_box_office|map(attribute='total_box')|list|tojson }};
+        var boxOfficeChartByType = new Chart(ctxType, {
+            type: 'bar',
+            data: {
+                labels: movieTypes,
+                datasets: [{
+                    label: '票房总和 (亿)',
+                    data: typeBoxOfficeData,
+                    backgroundColor: '#343a40',
+                    borderColor: '#343a40',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'x',
+                scales: {
+                    x: {
+                        ticks:{
+                          font:{
+                            size:16
+                          },
+                        },
+                        beginAtZero: true }
+                }
+            },
+        });
+
+        // 第三个条形图: 按年份统计的票房信息
+      var ctxYear = document.getElementById('boxOfficeChartByYear').getContext('2d');
+      var movieYears = {{ year_box_office|map(attribute='year')|list|tojson }};
+      var yearBoxOfficeData = {{ year_box_office|map(attribute='total_box')|list|tojson }};
+      var boxOfficeChartByYear = new Chart(ctxYear, {
+          type: 'bar',
+          data: {
+              labels: movieYears,
+              datasets: [{
+                  label: '票房总和 (亿)',
+                  data: yearBoxOfficeData,
+                  backgroundColor: '#343a40', // 深灰色
+                  borderColor: '#343a40', // 深灰色边框
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              indexAxis: 'x', // 设置为 'x' 使条形图垂直
+              scales: {
+                  x: { beginAtZero: true }
+              }
+          }
+      });
+    };
+    </script>
+
+{% endblock %}

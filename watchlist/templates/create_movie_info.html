@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2 class="centered-title">Add New Movie</h2>
+<div class="create-movie-page">
+<h2 class="centered-title">电影信息录入</h2>
 
 <form method="post">
     <!-- MovieInfo Fields -->
@@ -47,20 +48,44 @@
                 <input type="text" name="gender_1" placeholder="Gender" required>
                 <input type="text" name=country_1 placeholder="Country" required>
             </div>
+            <br><br>
             <div>
                 <input type="text" name="actor_name_2" placeholder="Actor Name">
                 <input type="text" name="relation_type_2" placeholder="Relation Type"><br>
                 <input type="text" name="gender_2" placeholder="Gender">
                 <input type="text" name=country_2 placeholder="Country">
             </div>
-            <!-- Add more actor input pairs as needed -->
+            <br><br>
+            <div>
+                <input type="text" name="actor_name_3" placeholder="Actor Name">
+                <input type="text" name="relation_type_3" placeholder="Relation Type"><br>
+                <input type="text" name="gender_3" placeholder="Gender">
+                <input type="text" name=country_3 placeholder="Country">
+            </div>
+            <br>
+            <br>
+            <div>
+                <input type="text" name="actor_name_4" placeholder="Actor Name">
+                <input type="text" name="relation_type_4" placeholder="Relation Type"><br>
+                <input type="text" name="gender_4" placeholder="Gender">
+                <input type="text" name=country_4 placeholder="Country">
+            </div>
+            <br><br>
+            <div>
+                <input type="text" name="actor_name_5" placeholder="Actor Name">
+                <input type="text" name="relation_type_5" placeholder="Relation Type"><br>
+                <input type="text" name="gender_5" placeholder="Gender">
+                <input type="text" name=country_5 placeholder="Country">
+            </div>
         </div>
     </div>
 
-    <input type="submit" value="Add Movie">
+    <div class="form-group">
+      <input type="submit" value="Add Movie">
+    </div>
   </form>
   <p>
     <a href="{{ url_for('index') }}">Cancel</a>
   </p>
-
+</div>
 {% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="actor-detail-page">
+<h2>{{ actor.actor_name }}</h2>
+
+<p>性别: {{ actor.gender }}</p>
+<p>国家: {{ actor.country }}</p>
+<h3>代表作品：</h3>
+<ul>
+  {% for movie in movies_info %}
+    <p>《{{ movie.movie_name }}》 - {{ movie.relation_type }}</p>
+  {% endfor %}
+</ul>
+<a href="https://movie.douban.com/subject_search?search_text={{ actor.actor_name | urlencode }}" target="_blank" class="btn btn-douban">Search on Douban</a>
+</div>
+<!-- 其他内容 -->
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="movie-detail-page">
+  <h2>《{{ movie.movie_name }}》</h2>
+
+  <p>上映日期: {{ movie.release_date | format_date }}</p>
+  <p>国家: {{ movie.country }}</p>
+  <p>类型: {{ movie.type }}</p>
+  <p>票房: {{movie_box.box}}亿</p>
+  <!-- 其他电影相关信息 -->
+
+
+  <ul>
+    <h3>演职人员：</h3>
+    {% for actor in actors_info %}
+      <p>{{ actor.actor_name }} - {{ actor.relation_type }}</p>
+    {% endfor %}
+  </ul>
+<a href="https://movie.douban.com/subject_search?search_text={{ movie.movie_name | urlencode }}" target="_blank" class="btn btn-douban">Search on Douban</a>
+</div>
+{% endblock %}

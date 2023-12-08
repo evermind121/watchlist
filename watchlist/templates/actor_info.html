@@ -1,14 +1,45 @@
 {% extends 'base.html' %}
 
 {% block content %}
+  <form method="get" action="{{ url_for('actor_info') }}" class="search-box">
+    <input type="text" name="search" placeholder="Search actors">
+    <input type="submit" value="Search">
+  </form>
+
+  {% if actors_search %}
+    <div class="search-result">
+    {% for actor in actors_search %}
+    <a href="{{ url_for('actor_detail', actor_id=actor.actor_id) }}">
+        {{ actor.actor_name }}
+    </a>
+    {% endfor %}
+    </div>
+    {% else %}
+        {% if search_found == False %}
+          <div class="search-result">
+            <p>No matching actors found.</p>
+          </div>
+        {% endif %}
+
+
+  {% endif %}
+
 
 
   {% if actors %}
     <ul class="actor-list">
       {% for actor in actors %}
         <li>
-          <strong>{{ actor.actor_name }} - {{ actor.gender }} - {{ actor.country }}
-
+          <a href="{{ url_for('actor_detail', actor_id=actor.actor_id) }}">
+          <strong>{{ actor.actor_id }} - {{ actor.actor_name }} - {{ actor.gender }} - {{ actor.country }}
+          </a>
+          {% if current_user.is_authenticated %}
+          <div class="btn-container">
+            <form class="inline-form" method="post" action="{{ url_for('delete_actor', actor_id=actor.actor_id) }}">
+               <input class="btn" type="submit" name="delete" value="Delete" onclick="return confirm('Are you sure?')">
+            </form>
+          </div>
+          {% endif %}
         </li>
       {% endfor %}
     </ul>
@@ -16,7 +47,4 @@
     <p>No actors available.</p>
   {% endif %}
 
-  <p>
-    <a href="{{ url_for('index') }}">Back to Home</a>
-  </p>
 {% endblock %}
