@@ -698,18 +698,6 @@ input[name=year] {
 }
 
 
-.ad-container {
-    position: fixed; /* 固定位置 */
-    top: 10; /* 从顶部开始 */
-    bottom: 10; /* 延伸到底部 */
-    width: 100px; /* 根据图片大小调整 */
-
-}
-
-.left-ad {
-    left: 10; /* 左侧广告靠左边缘 */
-}
-
 .btn-douban {
     display: block;
     margin: 20px auto;
